@@ -45,31 +45,21 @@ router.post('/logout', (req, res) => {
 });
 
 router.post('/signup', async (req, res) => {
+  console.log('WE ARE HERE!');
+
   try {
-    const userData = await User.create({ where: { name: req.body.name } });
+    const newUser = await User.create({
+      name: req.body.username,
+      password: req.body.password,
+    });
 
-    if (!userData) {
-      res
-        .status(400)
-        .json({ message: 'Incorrect email or password, please try again' });
-      return;
-    }
-
-    const validPassword = await userData.checkPassword(req.body.password);
-
-    if (!validPassword) {
-      res
-        .status(400)
-        .json({ message: 'Incorrect email or password, please try again' });
-      return;
-    }
 
     req.session.save(() => {
-      req.session.user_id = userData.id;
+      req.session.user_id = newUser.id;
       req.session.loggedIn = true;
-      req.session.name= userData.name;
+      req.session.name= newUser.name;
       
-      res.json({ user: userData, message: 'You are now logged in!' });
+      res.json({ user: newUser, message: 'You are now logged in!' });
     });
 
   } catch (err) {
